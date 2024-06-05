@@ -1,5 +1,6 @@
-import { Request, Response, response } from "express";
+import { Request, Response } from "express";
 import { sendEmail } from "../services/sendEmail.service";
+import { NodeMailerResponse } from "../interfaces/nodeMailerResponse.interface";
 
 export const sendEmailController = async (req: Request, res: Response) => {
     const { ...emailData } = req.body;
@@ -14,6 +15,8 @@ export const sendEmailController = async (req: Request, res: Response) => {
             });
         }
         else {
+            console.log({ Aceptados: emailBody.accepted })
+            console.log({ Rechazados: emailBody.rejected })
             throw new Error('Error al enviar correo')
         }
     }
