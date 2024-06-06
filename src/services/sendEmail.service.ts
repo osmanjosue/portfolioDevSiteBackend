@@ -1,7 +1,7 @@
 import nodemailer, { SentMessageInfo } from 'nodemailer';
 import 'dotenv/config';
 import { EmailAttachment } from '../interfaces/email.interface';
-import { lista } from './listaDeCorreos';
+// import { lista } from './listaDeCorreos';
 
 const transporter = nodemailer.createTransport({
     service: process.env.MAILER_SERVICE,
@@ -21,7 +21,7 @@ export const sendEmail = async (options: { nombre: string, correoElectronico: st
         to: ['osmanjosue007@gmail.com'],
         /* from: `Samantha Patschke <samantha_patschke@proyectoproposito.org>`,
         to: [''], */
-        bcc: lista,
+        // bcc: lista,
         replyTo,
         subject,
         html,
