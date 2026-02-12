@@ -19,9 +19,6 @@ export const sendEmail = async (options: { nombre: string, correoElectronico: st
     const dataToSend = await transporter.sendMail({
         from: `osmanherrera.dev <osmanherrera.dev>`,
         to: ['osmanjosue007@gmail.com'],
-        /* from: `Samantha Patschke <samantha_patschke@proyectoproposito.org>`,
-        to: [''], */
-        // bcc: lista,
         replyTo,
         subject,
         html,
