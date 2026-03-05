@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "tsnd --respawn --clear src/app.ts",
-    "clean": "rimraf dist public",    
+    "clean": "rimraf dist public",
     "build:frontend": "cd ../osmanHerreraSite && ng build --output-path ../osmanHerreraSiteBackend/dist/public && robocopy ..\\osmanHerreraSiteBackend\\dist\\public\\browser ..\\osmanHerreraSiteBackend\\dist\\public /E /MOVE /IS /IT /NDL /NFL /NJH /NJS && rd /S /Q ..\\osmanHerreraSiteBackend\\dist\\public\\browser",
     "build": "tsc",
     "build:full": "npm run clean && npm run build && npm run build:frontend",
@@ -31,6 +31,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.3.0",
     "express-validator": "^7.1.0",
     "nodemailer": "^6.9.13"
   }
