@@ -11,4 +11,4 @@ router.post('/', [
     (0, express_validator_1.check)('content', 'El cuerpo html es necesario').notEmpty(),
     validarCampos_1.validarCampos
 ], sendEmail_controller_1.sendEmailController);
-module.exports = router;
+exports.default = router;

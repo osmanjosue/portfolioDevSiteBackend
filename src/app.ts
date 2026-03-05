@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import cors, { CorsOptions } from 'cors';
 import path from 'path';
+import rateLimit from 'express-rate-limit';
+import emailRoutes from './routes/email-routes';
 
 const app = express();
 
@@ -13,7 +15,16 @@ const whiteList = [
     'http://localhost:4200', // Añadimos local para que tu Angular pueda hablar con tu Node en desarrollo
 ];
 
-// 2. Configuración de CORS con Tipado
+// --- 2. LIMITADOR DE PETICIONES (Protección contra Spam) ---
+const emailLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 3, // Máximo 5 correos por hora por IP
+    message: { ok: false, msg: 'Límite de envíos excedido. Intenta de nuevo mas tarde.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// 3. Configuración de CORS con Tipado
 const corsOptions: CorsOptions = {
     origin: (origin, callback) => {
         // Permitimos si está en la lista o si no hay origin (navegación directa)
@@ -29,9 +40,9 @@ const corsOptions: CorsOptions = {
 
 app.use(cors(corsOptions));
 
-// 3. Middleware de Protección para la API de Email
+// 4. Middleware de Protección para la API de Email
 // Bloquea herramientas como Postman en la ruta crítica
-app.use('/api/email', (req: Request, res: Response, next: NextFunction) => {
+app.use('/api/email', emailLimiter, (req: Request, res: Response, next: NextFunction) => {
     const origin = req.get('origin');
     
     // Si no hay origin o no está en la lista (Postman entra aquí)
@@ -42,18 +53,28 @@ app.use('/api/email', (req: Request, res: Response, next: NextFunction) => {
         });
     }
     next();
-});
+}, emailRoutes); // Rutas que importamos arriba
 
-// 4. Middlewares de Express
+// 5. Middlewares de Express
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
-
-// 5. Importación de Rutas (Asumiendo que tus rutas están en JS o compiladas)
-app.use('/api/email', require('./routes/email-routes'));
 
 // 6. Manejo de SPA
 app.get('*', (req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// --- 6. MANEJADOR DE ERRORES GLOBAL (Blindaje de información) ---
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    // Para ti: Se ve el error real en la consola de PM2
+    console.error(`[LOG] Error en ${req.method} ${req.url}: ${err.message}`);
+
+    // Para el mundo: Mensaje aburrido y sin rutas de carpetas
+    const status = err.message === 'No permitido por CORS' ? 403 : 500;
+    res.status(status).json({
+        ok: false,
+        msg: 'Solicitud no permitida o error interno.'
+    });
 });
 
 // 7. Servidor
